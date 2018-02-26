@@ -1,0 +1,15 @@
+root: true
+extends: semistandard
+env:
+  node: yes
+  browser: yes
+  es6: no
+parserOptions:
+  sourceType: script
+rules:
+  strict:
+    - error
+    - safe
+  linebreak-style:
+    - error
+    - unix

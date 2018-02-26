@@ -50,7 +50,7 @@ describe('List reporter', function () {
         startString,
         testString
       ];
-      stdout.should.deepEqual(expectedArray);
+      expect(stdout).to.eql(expectedArray);
     });
   });
   describe('on pending', function () {
@@ -70,7 +70,7 @@ describe('List reporter', function () {
 
       process.stdout.write = stdoutWrite;
 
-      stdout[0].should.deepEqual('  - ' + expectedTitle + '\n');
+      expect(stdout[0]).to.eql('  - ' + expectedTitle + '\n');
     });
   });
   describe('on pass', function () {
@@ -98,7 +98,7 @@ describe('List reporter', function () {
 
       process.stdout.write = stdoutWrite;
 
-      calledCursorCR.should.be.true();
+      expect(calledCursorCR).to.be(true);
 
       Base.cursor = cachedCursor;
     });
@@ -126,7 +126,7 @@ describe('List reporter', function () {
 
       process.stdout.write = stdoutWrite;
 
-      stdout[0].should.equal('  ' + expectedOkSymbol + ' ' + expectedTitle + ': ' + expectedDuration + 'ms\n');
+      expect(stdout[0]).to.equal('  ' + expectedOkSymbol + ' ' + expectedTitle + ': ' + expectedDuration + 'ms\n');
 
       Base.cursor = cachedCursor;
       Base.symbols = cachedSymbols;
@@ -157,7 +157,7 @@ describe('List reporter', function () {
 
       process.stdout.write = stdoutWrite;
 
-      calledCursorCR.should.be.true();
+      expect(calledCursorCR).to.be(true);
 
       Base.cursor = cachedCursor;
     });
@@ -188,9 +188,31 @@ describe('List reporter', function () {
 
       process.stdout.write = stdoutWrite;
 
-      stdout[0].should.equal('  ' + expectedErrorCount + ') ' + expectedTitle + '\n');
+      expect(stdout[0]).to.equal('  ' + expectedErrorCount + ') ' + expectedTitle + '\n');
 
       Base.cursor = cachedCursor;
+    });
+    it('should immediately construct fail strings', function () {
+      var actual = { a: 'actual' };
+      var expected = { a: 'expected' };
+      var test = {};
+      var checked = false;
+      var err;
+      runner.on = function (event, callback) {
+        if (!checked && event === 'fail') {
+          err = new Error('fake failure object with actual/expected');
+          err.actual = actual;
+          err.expected = expected;
+          err.showDiff = true;
+          callback(test, err);
+          checked = true;
+        }
+      };
+      List.call({epilogue: function () {}}, runner);
+
+      process.stdout.write = stdoutWrite;
+      expect(typeof err.actual).to.equal('string');
+      expect(typeof err.expected).to.equal('string');
     });
   });
 
@@ -209,7 +231,7 @@ describe('List reporter', function () {
       }, runner);
       process.stdout.write = stdoutWrite;
 
-      calledEpilogue.should.be.true();
+      expect(calledEpilogue).to.be(true);
     });
   });
 });
